@@ -1,0 +1,18 @@
+services:
+  db:
+    container_name: postgres
+    image: postgres:14.1
+    environment:
+      POSTGRES_USER: 'lth'
+      POSTGRES_PASSWORD: '123456'
+      POSTGRES_DATA: 'postgres_data'
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5332:5432"
+    network_mode: "bridge"
+    restart: unless-stopped
+
+
+volumes:
+  db:

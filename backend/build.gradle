@@ -1,0 +1,39 @@
+plugins {
+    id 'org.springframework.boot' version "2.5.6"
+}
+
+group 'io.springbootlearn'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly project(":fontend")
+    implementation "org.springframework.boot:spring-boot-starter-web"
+
+}
+
+bootJar {
+    doLast {
+        copy {
+            from "../build/libs"
+            into "../build/libs"
+            rename  "backend", "lthspring"
+        }
+    }
+}
+
+jar {
+    enabled = false
+}
+tasks.named("build").configure {
+    evaluationDependsOnChildren()
+    dependsOn(":fontend:npmBuild")
+/*    doLast {
+        project(":fontend").tasks.named("npmBuild").name.execute()
+        println("runnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+    }*/
+
+    finalizedBy(":fontend:copyToSourceBuild")
+}

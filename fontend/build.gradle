@@ -1,0 +1,104 @@
+/*
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
+    }
+}
+
+apply plugin: 'base'
+apply plugin: 'com.moowork.node' // gradle-node-plugin
+
+node {
+    */
+/* gradle-node-plugin configuration
+       https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md
+
+       Task name pattern:
+       ./gradlew npm_<command> Executes an NPM command.
+    *//*
+
+
+    // Version of node to use.
+    version = '10.14.1'
+
+    // Version of npm to use.
+    npmVersion = '6.4.1'
+
+    // If true, it will download node using above parameters.
+    // If false, it will try to use globally installed node.
+    download = true
+}
+
+npm_run_build {
+    inputs.files fileTree("public")
+    inputs.files fileTree("src")
+
+    inputs.file 'package.json'
+    inputs.file 'package-lock.json'
+
+    outputs.dir 'build'
+}
+
+assemble.dependsOn npm_run_build
+
+tasks.register('packageNpmApp', Zip) {
+    dependsOn npm_run_build
+    workingDir file("${projectDir}/build_packageNpmApp")
+    from('build') {
+        // optional path under which output will be visible in Java classpath, e.g. static resources path
+        into 'static'
+    }
+}
+assemble.dependsOn packageNpmApp
+
+configurations {
+    npmResources
+}
+
+configurations.default.extendsFrom(configurations.npmResources)
+
+artifacts {
+    npmResources(packageNpmApp.archivePath) {
+        builtBy packageNpmApp
+        type "jar"
+    }
+}
+
+clean {
+    delete packageNpmApp.archivePath
+}*/
+
+group 'io.springbootlearn'
+
+tasks.register("npmBuild", Exec){
+    commandLine "npm","run", "build"
+}
+
+tasks.register('copyToSourceBuild', Copy) {
+    description 'Copies the resource directory to the target directory.'
+    from getProject().getBuildDir()
+    into getRootProject().getChildProjects().get("backend").getBuildDir().getAbsoluteFile().toString().concat("/resources/main")
+    include('**/*')
+    println("copy resource applied")
+}
+
+/*tasks.named("copyToSourceBuild").configure {
+    mustRunAfter("npmBuild")
+}
+
+
+tasks.named("npmBuild").configure {
+    mustRunAfter(":backend:build")
+}
+
+tasks.named("build").configure {
+    mustRunAfter("copyToSourceBuild")
+}*/
+jar.enabled = false
